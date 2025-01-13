@@ -6,12 +6,6 @@ provider "aws" {
 # Define an S3 bucket resource
 resource "aws_s3_bucket" "example" {
   bucket = var.bucket_name
-  acl    = var.acl
-
-  # Optional: Enable versioning
-  versioning {
-    enabled = var.enable_versioning
-  }
 }
 
 # Define variables
@@ -25,13 +19,3 @@ variable "bucket_name" {
   type        = string
 }
 
-variable "acl" {
-  description = "The ACL to apply to the S3 bucket."
-  default     = "private"
-}
-
-variable "enable_versioning" {
-  description = "Whether to enable versioning for the S3 bucket."
-  type        = bool
-  default     = true
-}
