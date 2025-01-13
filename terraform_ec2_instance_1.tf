@@ -51,11 +51,5 @@ output "instance_public_ip" {
   value       = aws_instance.example.public_ip
 }
 
-#terraform.tfvars file
-
-aws_region    = "us-west-2"
-ami_id        = "ami-0abcdef1234567890" # Replace with a valid AMI ID
-instance_name = "MyTerraformInstance"
-instance_type = "t2.micro"
 
 
