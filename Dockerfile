@@ -8,7 +8,7 @@ RUN apt-get update && apt-get install -y nginx
 RUN rm -f /var/www/html/index.nginx-debian.html
 
 # Copy custom static files or configuration (optional)
-# COPY ./index.html /var/www/html/
+COPY ./index.html /var/www/html/
 
 # Expose port 80 to allow web traffic
 EXPOSE 80
