@@ -9,9 +9,6 @@ resource "aws_lb" "this" {
   enable_deletion_protection = var.enable_deletion_protection
 
   enable_cross_zone_load_balancing = var.enable_cross_zone_load_balancing
-  idle_timeout {
-    seconds = var.idle_timeout
-  }
 
   tags = var.tags
 }
