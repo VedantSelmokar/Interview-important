@@ -1,13 +1,3 @@
-/*
-terraform/
-├── modules/
-│   └── alb/
-│       ├── main.tf
-│       ├── variables.tf
-│       ├── outputs.tf
-└── main.tf
-*\
-
 #modules/alb/main.tf — The ALB module
 
 resource "aws_lb" "this" {
