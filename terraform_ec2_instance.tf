@@ -3,6 +3,18 @@ provider "aws" {
   region = "us-east-1" # Specify your preferred region
 }
 
+# Resource: EC2 Instance
+resource "aws_instance" "my_instance" {
+  ami           = var.ami_id
+  instance_type = var.instance_type
+  key_name      = var.key_name
+
+  tags = {
+    Name = var.instance_name
+  }
+}
+
+
 # Define Variables
 variable "instance_name" {
   description = "Name of the EC2 instance"
@@ -28,22 +40,4 @@ variable "key_name" {
   default     = "my-key-pair" # Replace with your existing key pair
 }
 
-# Resource: EC2 Instance
-resource "aws_instance" "my_instance" {
-  ami           = var.ami_id
-  instance_type = var.instance_type
-  key_name      = var.key_name
 
-  tags = {
-    Name = var.instance_name
-  }
-}
-
-# Output the instance information
-output "instance_id" {
-  value = aws_instance.my_instance.id
-}
-
-output "public_ip" {
-  value = aws_instance.my_instance.public_ip
-}
