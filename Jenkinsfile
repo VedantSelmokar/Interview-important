@@ -2,7 +2,6 @@ pipeline {
     agent any
     
     environment {
-        BRANCH = 'main'
         SONARQUBE_SERVER = 'SonarQube'
         SONARQUBE_PROJECT_KEY = 'project_key'
         NEXUS_URL = 'http://nexus.example.com'
