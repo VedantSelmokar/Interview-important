@@ -1,0 +1,16 @@
+- name: Install and configure Nginx
+  hosts: webservers
+  become: yes  # Run tasks as sudo
+  
+  tasks:
+    - name: Install Nginx
+      apt:
+        name: nginx
+        state: present
+      notify: Restart Nginx  # Notify the handler if this task makes a change
+
+  handlers:
+    - name: Restart Nginx
+      service:
+        name: nginx
+        state: restarted
