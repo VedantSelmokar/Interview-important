@@ -1,0 +1,11 @@
+---
+
+hosts: webservers
+become: true
+tasks:
+  - name: Creating multiple directories
+    file: path={item} state=directory
+	with_items:
+	- '/var/file1'
+	- '/var/file2'
+	- '/var/file3'
