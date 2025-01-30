@@ -6,7 +6,7 @@ pipeline {
         SONARQUBE_PROJECT_KEY = 'project_key'
         NEXUS_URL = 'http://nexus.example.com'
         NEXUS_REPO = 'maven-releases'
-        DOCKER_IMAGE = 'docker-image'
+        DOCKER_IMAGE = 'docker_image'
     }
     
     stages {
@@ -47,6 +47,30 @@ pipeline {
                 script {
                     def artifact = sh(script: "ls target/*.jar | head -n 1", returnStdout: true).trim()
                     sh "docker build -t ${DOCKER_IMAGE}:latest --build-arg JAR_FILE=${artifact} ."
+                }
+            }
+        }
+
+        stage('Push image to Hub'){
+            steps{
+                script{
+                   withCredentials([string(credentialsId: 'dockerhub-pwd', variable: 'dockerhubpwd')]) {
+                   sh 'docker login -u vedantselmokar -p ${dockerhubpwd}'}
+                   sh 'docker push vedantselmokar/docker_image:latest'
+                }
+            }
+        }
+        stage('EKS and Kubectl configuration'){
+            steps{
+                script{
+                    sh 'aws eks update-kubeconfig --region us-east-1 --name vedant-cluster'
+                }
+            }
+        }
+        stage('Deploy to k8s'){
+            steps{
+                script{
+                    sh 'kubectl apply -f deploymentservice.yml'
                 }
             }
         }
