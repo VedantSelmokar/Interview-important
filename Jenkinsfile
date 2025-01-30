@@ -10,7 +10,7 @@ pipeline {
     }
     
     stages {
-        stage('Clone Repository') {
+        stage('git checkout') {
             steps {
                 git branch: "main", url: "https://github.com/VedantSelmokar/project.git"
             }
