@@ -9,9 +9,7 @@
 ################################################################################
 
 resource "aws_vpc" "myVPC" {
-  cidr_block                       = var.cidr
-  enable_dns_hostnames             = var.enable_dns_hostnames
-  enable_dns_support               = var.enable_dns_support
+  cidr_block = var.cidr_block
   tags = {
     Name = var.vpc_name
   }
@@ -25,7 +23,7 @@ resource "aws_internet_gateway" "myIGW" {
 
   vpc_id = aws_vpc.myVPC.id
   tags = {
-    "Name" = var.igw_tag
+    Name = var.igw_tag
   }
 }
 
@@ -36,21 +34,19 @@ resource "aws_internet_gateway" "myIGW" {
 resource "aws_subnet" "public_subnet_1" {
   vpc_id                          = aws_vpc.myVPC.id
   cidr_block                      = var.public_subnets_cidr_1
-  availability_zone               = data.aws_availability_zones.available_1.names[0]
   map_public_ip_on_launch         = var.map_public_ip_on_launch
 
   tags = {
-   Name = var.public_subnet_tag_1
+   Name = "public-subnet-1"
   }
 }
 resource "aws_subnet" "public_subnet_2" {
   vpc_id                          = aws_vpc.myVPC.id
   cidr_block                      = var.public_subnets_cidr_2
-  availability_zone               = data.aws_availability_zones.available_1.names[1]
   map_public_ip_on_launch         = var.map_public_ip_on_launch
 
   tags = {
-   Name = var.public_subnet_tag_2
+   Name = "public-subnet-2"
   }
 }
 
@@ -61,21 +57,19 @@ resource "aws_subnet" "public_subnet_2" {
 resource "aws_subnet" "database_subnet_1" {
   vpc_id                          = aws_vpc.myVPC.id
   cidr_block                      = var.database_subnets_cidr_1
-  availability_zone               = data.aws_availability_zones.available_1.names[0]
   map_public_ip_on_launch         = false
 
   tags = {
-    Name = var.database_subnet_tag_1
+    Name = "database-subnet-1"
   }
 }
 resource "aws_subnet" "database_subnet_2" {
   vpc_id                          = aws_vpc.myVPC.id
   cidr_block                      = var.database_subnets_cidr_2
-  availability_zone               = data.aws_availability_zones.available_1.names[1]
   map_public_ip_on_launch         = false
 
   tags = {
-    Name = var.database_subnet_tag_2
+    Name = "database-subnet-2"
   }
 }
 
@@ -86,7 +80,7 @@ resource "aws_subnet" "database_subnet_2" {
 resource "aws_route_table" "public_route_table" {
   vpc_id = aws_vpc.myVPC.id
   tags = {
-    Name = var.public_route_table_tag
+    Name = "public-route-table"
   }
 }
 resource "aws_route" "public_internet_gateway" {
@@ -103,7 +97,7 @@ resource "aws_route_table" "database_route_table" {
   vpc_id = aws_vpc.myVPC.id
 
   tags = {
-    Name = var.database_route_table_tag
+    Name = "database-route-table"
   }
 }
 
@@ -165,59 +159,14 @@ resource "aws_security_group" "sg" {
     }
   ]
 
-  tags = {
-    Name = "tcw_security_group"
-  }
 }
 
 ##################################################### variables.tf###############################################################
 
-variable "database_route_table_association_required" {
-  description = "Whether db route table association required"
-  type        = bool
-  default     = null
-}
-
-variable "create_igw" {
-  description = "Whether IGW needs to be created"
-  type        = bool
-  default     = null
-}
-variable "igw_tag" {
-  description = "Mention Tag needs to be associated with internet gateway"
-  type        = string
-  default     = "tcw_igw"
-}
-variable "public_route_table_tag" {
-  description = "Tag name for public route table"
-  type        = string
-  default     = "tcw_public_route_table"
-}
-variable "database_route_table_tag" {
-  description = "Tage for database route table"
-  type        = string
-  default     = "tcw_database_route_table"
-}
-variable "cidr" {
+variable "cidr_block" {
   description = "Enter the CIDR range required for VPC"
   type        = string
   default     = "192.168.0.0/16"
-}
-variable "enable_dns_hostnames" {
-  description = "Enable DNS Hostname"
-  type        = bool
-  default     = null
-}
-
-variable "enable_dns_support" {
-  description = "Enable DNS Support"
-  type        = bool
-  default     = null
-}
-variable "enable_ipv6" {
-  description = "Requests an Amazon-provided IPv6 CIDR block with a /56 prefix length for the VPC. You cannot specify the range of IP addresses, or the size of the CIDR block."
-  type        = bool
-  default     = null
 }
 
 variable "vpc_name" {
@@ -226,43 +175,10 @@ variable "vpc_name" {
   default     = "tcw_vpc"
 }
 
-variable "default_security_group_name" {
-  description = "Enter the name for security group"
+variable "igw_tag" {
+  description = "Mention Tag needs to be associated with internet gateway"
   type        = string
-  default     = null
-}
-
-variable "enable_dhcp_options" {
-  description = "Enable DHCP options.. True or False"
-  type        = bool
-  default     = null
-}
-
-variable "manage_default_route_table" {
-  description = "Are we managing default route table"
-  type        = bool
-  default     = null
-}
-variable "public_subnet_tag_1" {
-  description = "Tag for public subnet"
-  type        = string
-  default     = "tcw_public_subnet_az_1a"
-}
-variable "public_subnet_tag_2" {
-  description = "Tag for public subnet"
-  type        = string
-  default     = "tcw_public_subnet_az_1b"
-}
-variable "database_subnets" {
-  description = "CIDR block for database subnet"
-  type        = list(any)
-  default     = null
-}
-
-variable "public_subnet" {
-  description = "enter the number of public subnets you need"
-  type        = number
-  default     = null
+  default     = "tcw_igw"
 }
 
 variable "public_subnets_cidr_1" {
@@ -275,21 +191,7 @@ variable "public_subnets_cidr_2" {
   type        = string
   default     = "192.168.2.0/24"
 }
-variable "database_subnet_tag_1" {
-  description = "Tag for Private Subnet"
-  type        = string
-  default     = "tcw_database_subnet_az_1a"
-}
-variable "database_subnet_tag_2" {
-  description = "Tag for Private Subnet"
-  type        = string
-  default     = "tcw_database_subnet_az_1b"
-}
-variable "map_public_ip_on_launch" {
-  description = "It will map the public ip while launching resources"
-  type        = bool
-  default     = null
-}
+
 variable "database_subnets_cidr_1" {
   description = "mention the CIDR block for database subnet"
   type = string
@@ -301,17 +203,30 @@ variable "database_subnets_cidr_2" {
   default = "192.168.6.0/24"
 }
 
+variable "map_public_ip_on_launch" {
+  description = "It will map the public ip while launching resources"
+  type        = bool
+  default     = null
+}
+
+variable "manage_default_route_table" {
+  description = "Are we managing default route table"
+  type        = bool
+  default     = null
+}
 ############################################################ output.tf ###################################################################
 
 output "vpc_id" {
   value = aws_vpc.myVPC.id
 }
+########################################################### module.tf ####################################################################
 
-
-################################################################################
-# Availability Zones list out
-################################################################################
-
-data "aws_availability_zones" "available_1" {
-  state = "available"
+module "vpc" {
+  source           = "./modules/vpc"
+  vpc_name         = "example-vpc"
+  cidr_block       = "10.0.0.0/16"
+  public_subnet_cidrs  = ["10.0.1.0/24", "10.0.2.0/24"]
+  database_subnet_cidrs = ["10.0.3.0/24", "10.0.4.0/24"]
+  enable_nat_gateway   = true
 }
+
