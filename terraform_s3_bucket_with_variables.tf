@@ -20,3 +20,10 @@ variable "bucket_name" {
   default     = object_sample_007
 }
 
+#module
+
+module "s3_bucket" {
+  source  = "./s3"
+  bucket = "my-terraform-s3-bucket-12345"
+  acl    = "private"
+  }
