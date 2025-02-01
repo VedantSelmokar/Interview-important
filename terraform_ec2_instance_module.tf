@@ -1,110 +1,87 @@
-#ec2/main.tf
+#main.tf
 
 provider "aws" {
-  region = var.region
+  region = var.aws_region
 }
 
-resource "aws_instance" "ec2" {
-  ami           = var.ami
+resource "aws_security_group" "mySG" {
+  name        = var.sg_name
+
+  ingress {
+    description      = "Allow SSH"
+    from_port        = 22
+    to_port          = 22
+    protocol         = "tcp"
+    cidr_blocks      = var.allowed_cidr_blocks
+  }
+  
+  egress {
+    description      = "Allow all outbound traffic"
+    from_port        = 0
+    to_port          = 0
+    protocol         = "-1"
+    cidr_blocks      = ["0.0.0.0/0"]
+  }
+}
+
+resource "aws_instance" "myEC2" {
+  ami           = var.ami_id
   instance_type = var.instance_type
-  key_name      = var.key_name
-  subnet_id     = var.subnet_id
-
-  tags = merge(
-    {
-      Name = var.instance_name
-    },
-    var.tags
-  )
-
-  security_group_ids = var.security_group_ids
-
-  user_data = var.user_data
+  security_groups = [aws_security_group.mySG.name]
+  tags = {
+    Name = "my-instance"
+  }
 }
 
-#ec2/variables.tf
+#variable.tf
 
-variable "region" {
-  description = "AWS region"
+variable "aws_region" {
+  description = "The AWS region to deploy to"
   type        = string
   default     = "us-east-1"
 }
 
-variable "ami" {
-  description = "AMI ID for the instance"
+variable "ami_id" {
+  description = "The AMI ID for the EC2 instance"
   type        = string
 }
 
 variable "instance_type" {
-  description = "EC2 instance type"
+  description = "The EC2 instance type"
   type        = string
   default     = "t2.micro"
 }
 
-variable "key_name" {
-  description = "Key name for SSH access"
+variable "sg_name" {
+  description = "Name of the security group"
   type        = string
+  default     = "security_group"
 }
 
-variable "subnet_id" {
-  description = "Subnet ID where the instance will be launched"
-  type        = string
-}
-
-variable "security_group_ids" {
-  description = "Security group IDs for the instance"
+variable "allowed_cidr_blocks" {
+  description = "List of CIDR blocks allowed to access the instance"
   type        = list(string)
+  default     = ["0.0.0.0/0"]
 }
 
-variable "tags" {
-  description = "Additional tags for the instance"
-  type        = map(string)
-  default     = {}
-}
-
-variable "user_data" {
-  description = "User data script"
-  type        = string
-  default     = ""
-}
-
-variable "instance_name" {
-  description = "Name tag for the instance"
-  type        = string
-  default     = "MyEC2Instance"
-}
-
-#ec2/outputs.tf
+#output.tf
 
 output "instance_id" {
-  description = "ID of the EC2 instance"
-  value       = aws_instance.ec2.id
+  description = "The ID of the EC2 instance"
+  value       = aws_instance.myEC2.id
 }
 
-output "public_ip" {
-  description = "Public IP of the EC2 instance"
-  value       = aws_instance.ec2.public_ip
+output "security_group_id" {
+  description = "The ID of the security group"
+  value       = aws_security_group.mySG.id
 }
 
-output "private_ip" {
-  description = "Private IP of the EC2 instance"
-  value       = aws_instance.ec2.private_ip
+#ec2.tf
+
+module "ec2" {
+  source        = "./ec2"
+  aws_region    = "us-east-1"
+  ami_id        = "ami-12345678"
+  instance_type = "t2.micro"
+  sg_name       = ["sg-12345678"]
 }
-
-#main.tf
-
-module "ec2_instance" {
-  source             = "./ec2-instance-module"
-  region             = "us-east-1"
-  ami                = "ami-12345678"
-  instance_type      = "t2.micro"
-  key_name           = "my-key-pair"
-  subnet_id          = "subnet-abcdef12"
-  security_group_ids = ["sg-12345678"]
-  instance_name      = "MyInstance"
-  tags = {
-    Environment = "dev"
-    Owner       = "myuser"
-  }
-}
-
